@@ -1,0 +1,13 @@
+#
+# 	DEBUG LAUNCH SPECFICATION 
+#
+
+-include: ~com.liferay.messaging.client.bndrun
+
+-runrequires.debug:  \
+	${debug-bundles}
+
+-runtrace: true
+
+-runbundles: \
+	${error;Resolve first}

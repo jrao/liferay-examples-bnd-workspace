@@ -1,0 +1,16 @@
+#
+# 	BUNDLE 
+#
+
+Bundle-Description: \
+	The provider bundle for com.liferay.messaging.client. \
+	\
+	${warning;Please update this Bundle-Description in com.liferay.messaging.client/api.bnd}
+	
+Export-Package:  \
+	com.liferay.messaging.client.api
+
+Private-Package:  \
+	com.liferay.messaging.client.provider
+
+-includeresource: {readme.md}

@@ -1,0 +1,19 @@
+#
+#  API
+#
+
+Bundle-Description: \
+	 API \
+	\
+	${warning;Please update this Bundle-Description in com.liferay.messaging.client/api.bnd}
+	
+	
+Export-Package:  \
+	com.liferay.messaging.client.api
+
+Require-Capability: \
+	compile-only
+
+
+-includeresource: {readme.md}
+

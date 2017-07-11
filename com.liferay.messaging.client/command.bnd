@@ -1,0 +1,15 @@
+#
+#  GOGO COMMAND BUNDLE (client) 
+#
+
+Bundle-Description: \
+	Provides a command to the Gogo shell. \
+	\
+	${warning;Please update this Bundle-Description in com.liferay.messaging.client/command.bnd}
+	
+
+Private-Package:  \
+	com.liferay.messaging.client.command
+	
+	
+-includeresource: {readme.md}
