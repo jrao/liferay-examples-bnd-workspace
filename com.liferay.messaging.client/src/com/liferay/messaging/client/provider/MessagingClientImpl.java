@@ -1,13 +1,19 @@
 package com.liferay.messaging.client.provider;
 
+import com.liferay.messaging.Destination;
 import com.liferay.messaging.DestinationConfiguration;
+import com.liferay.messaging.DestinationEventListener;
 import com.liferay.messaging.DestinationNames;
 import com.liferay.messaging.Message;
 import com.liferay.messaging.MessageBuilder;
 import com.liferay.messaging.MessageBuilderFactory;
 import com.liferay.messaging.MessageBus;
+import com.liferay.messaging.MessageBusEventListener;
 import com.liferay.messaging.MessageListener;
 import com.liferay.messaging.MessageListenerException;
+import com.liferay.messaging.MessageProcessorException;
+import com.liferay.messaging.OutboundMessageProcessor;
+import com.liferay.messaging.OutboundMessageProcessorFactory;
 import com.liferay.messaging.client.api.MessagingClient;
 
 import java.util.Dictionary;
@@ -17,6 +23,7 @@ import java.util.Map;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -122,6 +129,25 @@ public class MessagingClientImpl implements MessagingClient {
 			// Send message via message builder
 			messageBuilder.send();
 			
+			// Add a message bus event listener here
+			MessageBusEventListener listener = new MessageBusEventListener() {
+
+				@Override
+				public void destinationAdded(Destination destination) {
+					System.out.println("Destination added!");
+				}
+
+				@Override
+				public void destinationRemoved(Destination destination) {
+					System.out.println("Destination removed!");
+				}
+
+			};
+
+			ServiceRegistration<MessageBusEventListener> serviceRegistration =
+				_bundleContext.registerService(
+					MessageBusEventListener.class, listener, null);
+			
 			// Add third destination
 			String destinationName3 = "parallelDestination3";
 			
@@ -134,6 +160,27 @@ public class MessagingClientImpl implements MessagingClient {
 			messageBus = getMessageBus();
 			
 			System.out.println("Destination count: " + messageBus.getDestinationCount());
+			
+			// Add destination event listener to third destination
+			DestinationEventListener destinationEventListener = new DestinationEventListener() {
+
+				@Override
+				public void messageListenerRegistered(String destinationName, MessageListener messageListener) {
+					System.out.println("Message listener registered with " + destinationName + "!");
+				}
+
+				@Override
+				public void messageListenerUnregistered(String destinationName, MessageListener messageListener) {
+					System.out.println("Message listener unregistered with " + destinationName + "!");
+				}
+				
+			};
+
+			Dictionary<String, Object> destinationEventListenerProperties = new Hashtable<String, Object>();
+
+			destinationEventListenerProperties.put("destination.name", destinationName3);
+
+			_bundleContext.registerService(DestinationEventListener.class, destinationEventListener, destinationEventListenerProperties);
 
 			// Add third message listener
 			MessageListener messageListener3 = new MessageListener() {
@@ -201,6 +248,45 @@ public class MessagingClientImpl implements MessagingClient {
 			Object response4 = messageBuilder4.sendSynchronous();
 			System.out.println("response: " + response4);
 			
+			OutboundMessageProcessorFactory ompFactory =
+					new OutboundMessageProcessorFactory() {
+
+				@Override
+				public OutboundMessageProcessor create() {
+					return new OutboundMessageProcessor() {
+
+						@Override
+						public void afterSend(Message message) throws MessageProcessorException {
+							System.out.println("In afterSend!");
+						}
+
+						@Override
+						public Message beforeSend(Message message) throws MessageProcessorException {
+							System.out.println("In beforeSend!");
+
+							message.put("extraKey", "extraValue");
+
+							return message;
+						}
+
+					};
+				}
+
+			};
+
+			Dictionary<String, Object> ompFactoryProperties = new Hashtable<String, Object>();
+
+			ompFactoryProperties.put("destination.name", destinationName);
+
+			_bundleContext.registerService(
+				OutboundMessageProcessorFactory.class, ompFactory, ompFactoryProperties);
+			
+			MessageBuilder ompMessageBuilder = getMessageBuilderFactory().create(destinationName);
+			
+			ompMessageBuilder.setPayload("ompMessagePayload");
+			
+			ompMessageBuilder.send();
+
 			break;
 		default:
 			System.out.println("Invalid command!");
