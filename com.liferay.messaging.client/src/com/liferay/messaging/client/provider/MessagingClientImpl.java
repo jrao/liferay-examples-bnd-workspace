@@ -16,6 +16,7 @@ import com.liferay.messaging.OutboundMessageProcessor;
 import com.liferay.messaging.OutboundMessageProcessorFactory;
 import com.liferay.messaging.client.api.MessagingClient;
 
+import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
@@ -23,7 +24,10 @@ import java.util.Map;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -42,6 +46,8 @@ public class MessagingClientImpl implements MessagingClient {
 			_bundleContext, MessageBus.class, null);
 		_messageBuilderFactoryTracker = new ServiceTracker<>(
 			_bundleContext, MessageBuilderFactory.class, null);
+		_configurationAdminTracker = new ServiceTracker<>(
+			_bundleContext, ConfigurationAdmin.class, null);
 		_timeout = 1000;
 	}
 
@@ -58,7 +64,7 @@ public class MessagingClientImpl implements MessagingClient {
 	}
 
 	@Override
-	public void messagingCommand(String command) {
+	public void messagingCommand(String command) throws IOException, InvalidSyntaxException {
 		System.out.println("Command entered: " + command);
 
 		command = command.toLowerCase();
@@ -248,6 +254,7 @@ public class MessagingClientImpl implements MessagingClient {
 			Object response4 = messageBuilder4.sendSynchronous();
 			System.out.println("response: " + response4);
 			
+			// Demonstrate use of outbound message processor
 			OutboundMessageProcessorFactory ompFactory =
 					new OutboundMessageProcessorFactory() {
 
@@ -286,11 +293,59 @@ public class MessagingClientImpl implements MessagingClient {
 			ompMessageBuilder.setPayload("ompMessagePayload");
 			
 			ompMessageBuilder.send();
+			
+			break;
+		case "configadmin":
+			// Demonstrate configuring message bus properties via configuration admin
+			ConfigurationAdmin configurationAdmin = getConfigurationAdmin();
+			
+			messageBus = getMessageBus();
+			
+			Configuration[] configurations =
+					configurationAdmin.listConfigurations(
+							"(service.factoryPid=" + messageBus.getClass().getName() + ")");
+			
+			if (configurations == null) {
+				System.out.println("No configurations found. Adding one!");
+				addMessageBusConfig();
+			}
+			
+			configurations =
+					configurationAdmin.listConfigurations(
+							"(service.factoryPid=" + messageBus.getClass().getName() + ")");
+			
+			if (configurations == null || configurations.length == 0) {
+				throw new RuntimeException();
+			}
+			
+			System.out.println("Number of configurations for " +
+			messageBus.getClass().getName() + ": " + configurations.length);
+			
+			for (Configuration configuration : configurations) {
+				System.out.println("configuration: " + configuration);
+				Dictionary<String, Object> props = configuration.getProperties();
+				System.out.println("configuration properties: " + props);
+			}
 
 			break;
 		default:
 			System.out.println("Invalid command!");
 		}
+	}
+	
+	private void addMessageBusConfig() throws IOException {
+		ConfigurationAdmin configurationAdmin = getConfigurationAdmin();
+		
+		MessageBus messageBus = getMessageBus();
+
+		Configuration newConfig =
+		configurationAdmin.createFactoryConfiguration(messageBus.getClass().getName());
+		
+		Dictionary<String, Object> dictionary = new Hashtable<String, Object>();
+		
+		dictionary.put("synchronousMessageSenderTimeout", 5000);
+		
+		newConfig.update(dictionary);
 	}
 	
 	private MessageBus getMessageBus() {
@@ -328,10 +383,28 @@ public class MessagingClientImpl implements MessagingClient {
 		}
 	}
 	
+	private ConfigurationAdmin getConfigurationAdmin() {
+		try {
+			_configurationAdminTracker.open();
+				
+			ConfigurationAdmin configurationAdmin = _configurationAdminTracker.waitForService(_timeout);
+
+			if (configurationAdmin == null) {
+				throw new RuntimeException();
+			}
+
+			return configurationAdmin;
+		}
+		catch (InterruptedException ie) {
+			throw new RuntimeException(ie);
+		}
+	}
+	
 	private Bundle _bundle;
 	private BundleContext _bundleContext;
 	private ServiceTracker<MessageBus, MessageBus> _messageBusTracker;
 	private ServiceTracker<MessageBuilderFactory, MessageBuilderFactory> _messageBuilderFactoryTracker;
+	private ServiceTracker<ConfigurationAdmin, ConfigurationAdmin> _configurationAdminTracker;
 	private long _timeout;
 
 }

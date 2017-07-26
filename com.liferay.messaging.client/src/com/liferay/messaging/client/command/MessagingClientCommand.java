@@ -1,9 +1,13 @@
 package com.liferay.messaging.client.command;
 
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.liferay.messaging.client.api.MessagingClient;
+
+import java.io.IOException;
+
 import osgi.enroute.debug.api.Debug;
 
 /**
@@ -20,7 +24,7 @@ import osgi.enroute.debug.api.Debug;
 )
 public class MessagingClientCommand {
 
-	public void messagingCommand(String message) {
+	public void messagingCommand(String message) throws IOException, InvalidSyntaxException {
 		_messagingClient.messagingCommand(message);
 	}
 
