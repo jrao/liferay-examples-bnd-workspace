@@ -16,8 +16,7 @@ public interface MessagingClient {
 	/**
 	 * The interface is a minimal method.
 	 * 
-	 * @param message the message to say
-	 * @return true if the message could be spoken
+	 * @param command the command to run
 	 * @throws InvalidSyntaxException 
 	 * @throws IOException 
 	 */
