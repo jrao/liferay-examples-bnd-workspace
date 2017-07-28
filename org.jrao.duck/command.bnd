@@ -1,0 +1,15 @@
+#
+#  GOGO COMMAND BUNDLE (duck) 
+#
+
+Bundle-Description: \
+	Provides a command to the Gogo shell. \
+	\
+	${warning;Please update this Bundle-Description in org.jrao.duck/command.bnd}
+	
+
+Private-Package:  \
+	org.jrao.duck.command
+	
+	
+-includeresource: {readme.md}

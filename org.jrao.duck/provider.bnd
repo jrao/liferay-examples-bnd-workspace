@@ -1,0 +1,16 @@
+#
+# 	BUNDLE 
+#
+
+Bundle-Description: \
+	The provider bundle for org.jrao.duck. \
+	\
+	${warning;Please update this Bundle-Description in org.jrao.duck/api.bnd}
+	
+Export-Package:  \
+	org.jrao.duck.api
+
+Private-Package:  \
+	org.jrao.duck.provider
+
+-includeresource: {readme.md}
