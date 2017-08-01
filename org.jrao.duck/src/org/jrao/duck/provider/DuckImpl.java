@@ -17,6 +17,8 @@ import org.osgi.service.event.EventAdmin;
 import org.osgi.service.metatype.annotations.Designate;
 
 import org.jrao.duck.api.Duck;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is the implementation. It registers a Duck service.
@@ -27,6 +29,8 @@ public class DuckImpl implements Duck {
 
 	@Activate
 	void activate(Duck.Config config) {
+		_logger = LoggerFactory.getLogger(this.getClass().getName());
+
 		System.out.println("Duck activated! Duck size: " + config.size());
 	}
 
@@ -38,6 +42,12 @@ public class DuckImpl implements Duck {
 	@Override
 	public void quack() {
 		System.out.println("quack!");
+
+		_logger.trace("quack!");
+		_logger.debug("quack!");
+		_logger.info("quack!");
+		_logger.warn("quack!");
+		_logger.error("quack!");
 		
 		Event event = new Event("org/jrao/quack", new HashMap<String, Object>());
 
@@ -96,5 +106,7 @@ public class DuckImpl implements Duck {
 	
 	@Reference
 	private ConfigurationAdmin _configAdmin;
+
+	private Logger _logger;		
 
 }
