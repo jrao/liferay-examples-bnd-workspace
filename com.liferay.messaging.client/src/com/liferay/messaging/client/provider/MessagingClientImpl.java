@@ -111,31 +111,21 @@ public class MessagingClientImpl implements MessagingClient {
 				destinationName + "): " +
 				messageBus.hasDestination(destinationName));
 
-			// Create message
-			Message message = new Message();
-			message.setPayload("payload1");
-
-			message.put("property1", "value1");
-			message.put("property2", "value2");
-			
-			// Send message
-			getMessageBus().sendMessage(destinationName, message);
-
 			// Create message via message builder
 			MessageBuilderFactory messageBuilderFactory = getMessageBuilderFactory();			
 			
 			MessageBuilder messageBuilder =
 				messageBuilderFactory.create(destinationName);
 			
-			messageBuilder.setPayload("payload2");
+			messageBuilder.setPayload("payload");
 			
-			messageBuilder.put("property3", "value3");
-			messageBuilder.put("property4", "value4");
+			messageBuilder.put("property1", "value1");
+			messageBuilder.put("property2", "value2");
 
 			// Send message via message builder
 			messageBuilder.send();
 			
-			// Add a message bus event listener here
+			// Create a message bus event listener
 			MessageBusEventListener listener = new MessageBusEventListener() {
 
 				@Override
@@ -150,24 +140,24 @@ public class MessagingClientImpl implements MessagingClient {
 
 			};
 
-			ServiceRegistration<MessageBusEventListener> serviceRegistration =
-				_bundleContext.registerService(
-					MessageBusEventListener.class, listener, null);
+			// Register the message bus event listener
+			_bundleContext.registerService(
+				MessageBusEventListener.class, listener, null);
 			
-			// Add third destination
-			String destinationName3 = "parallelDestination3";
+			// Add second destination
+			String destinationName2 = "parallelDestination2";
 			
-			DestinationConfiguration parallelDestinationConfiguration3 =
+			DestinationConfiguration parallelDestinationConfiguration2 =
 				DestinationConfiguration
-					.createParallelDestinationConfiguration(destinationName3);
+					.createParallelDestinationConfiguration(destinationName2);
 			
-			_bundleContext.registerService(DestinationConfiguration.class, parallelDestinationConfiguration3, null);
+			_bundleContext.registerService(DestinationConfiguration.class, parallelDestinationConfiguration2, null);
 			
 			messageBus = getMessageBus();
 			
 			System.out.println("Destination count: " + messageBus.getDestinationCount());
 			
-			// Add destination event listener to third destination
+			// Add destination event listener to second destination
 			DestinationEventListener destinationEventListener = new DestinationEventListener() {
 
 				@Override
@@ -184,16 +174,17 @@ public class MessagingClientImpl implements MessagingClient {
 
 			Dictionary<String, Object> destinationEventListenerProperties = new Hashtable<String, Object>();
 
-			destinationEventListenerProperties.put("destination.name", destinationName3);
+			destinationEventListenerProperties.put("destination.name", destinationName2);
 
 			_bundleContext.registerService(DestinationEventListener.class, destinationEventListener, destinationEventListenerProperties);
 
-			// Add third message listener
-			MessageListener messageListener3 = new MessageListener() {
+			// Add second message listener
+			MessageListener messageListener2 = new MessageListener() {
 
 				@Override
 				public void receive(Message message) throws MessageListenerException {
-					System.out.println("Destination 3 received message: " + message);
+					System.out.println("Received message: " + message);
+					System.out.println("Sending response");
 					
 					// Create response message
 					MessageBuilder responseMessageBuilder = getMessageBuilderFactory().createResponse(message);
@@ -205,13 +196,13 @@ public class MessagingClientImpl implements MessagingClient {
 				
 			};
 			
-			Dictionary<String, Object> properties3 = new Hashtable<String, Object>();
-			properties3.put("destination.name", destinationName3);
+			Dictionary<String, Object> properties2 = new Hashtable<String, Object>();
+			properties2.put("destination.name", destinationName2);
 
-			_bundleContext.registerService(MessageListener.class, messageListener3, properties3);
+			_bundleContext.registerService(MessageListener.class, messageListener2, properties2);
 			
-			// Add fourth message listener, this one for the default response destination
-			MessageListener messageListener4 = new MessageListener() {
+			// Add third message listener, this one for the default response destination
+			MessageListener messageListener3 = new MessageListener() {
 
 				@Override
 				public void receive(Message message) throws MessageListenerException {
@@ -220,10 +211,10 @@ public class MessagingClientImpl implements MessagingClient {
 				
 			};
 			
-			Dictionary<String, Object> properties4 = new Hashtable<String, Object>();
-			properties4.put("destination.name", DestinationNames.MESSAGE_BUS_DEFAULT_RESPONSE);
+			Dictionary<String, Object> properties3 = new Hashtable<String, Object>();
+			properties3.put("destination.name", DestinationNames.MESSAGE_BUS_DEFAULT_RESPONSE);
 
-			_bundleContext.registerService(MessageListener.class, messageListener4, properties4);
+			_bundleContext.registerService(MessageListener.class, messageListener3, properties3);
 			
 			// Create third message
 			Message message3 = new Message();
@@ -235,18 +226,18 @@ public class MessagingClientImpl implements MessagingClient {
 			message3.setResponseDestinationName(DestinationNames.MESSAGE_BUS_DEFAULT_RESPONSE);
 	
 			// Send synchronous message
-			Object response = getMessageBus().sendSynchronousMessage(destinationName3, message3);
+			Object response = getMessageBus().sendSynchronousMessage(destinationName2, message3);
 			System.out.println("response: " + response);
 			
 			// Create fourth message via message builder
 			messageBuilderFactory = getMessageBuilderFactory();
 			
-			MessageBuilder messageBuilder4 = messageBuilderFactory.create(destinationName3);
+			MessageBuilder messageBuilder4 = messageBuilderFactory.create(destinationName2);
 			
-			messageBuilder4.setPayload("payload4");
+			messageBuilder4.setPayload("payload2");
 			
-			messageBuilder4.put("property7", "value7");
-			messageBuilder4.put("property8", "value8");
+			messageBuilder4.put("property3", "value4");
+			messageBuilder4.put("property3", "value4");
 			
 			messageBuilder4.setResponseDestinationName(DestinationNames.MESSAGE_BUS_DEFAULT_RESPONSE);
 			
