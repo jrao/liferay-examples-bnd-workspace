@@ -1,0 +1,15 @@
+#
+#  GOGO COMMAND BUNDLE (dckclnt) 
+#
+
+Bundle-Description: \
+	Provides a command to the Gogo shell. \
+	\
+	${warning;Please update this Bundle-Description in org.jrao.duckclient/command.bnd}
+	
+
+Private-Package:  \
+	org.jrao.duckclient.command
+	
+	
+-includeresource: {readme.md}

@@ -1,0 +1,26 @@
+#
+# 	LAUNCH SPECIFICATION 
+#
+
+
+Bundle-Version:				1.0.0.${tstamp}
+Bundle-SymbolicName:		org.jrao.duckclient.launch
+JPM-Command:				dckclnt
+
+
+-runrequires:  \
+	osgi.identity;filter:='(osgi.identity=org.jrao.duckclient.provider)',\
+	osgi.identity;filter:='(osgi.identity=org.jrao.duckclient.command)'
+
+-runbundles: \
+	org.apache.felix.configadmin;version='[1.8.8,1.8.9)',\
+	org.apache.felix.log;version='[1.0.1,1.0.2)',\
+	org.apache.felix.scr;version='[2.0.2,2.0.3)',\
+	org.eclipse.equinox.event;version='[1.3.100,1.3.101)',\
+	org.eclipse.equinox.metatype;version='[1.4.100,1.4.101)',\
+	org.jrao.duck.provider;version=snapshot,\
+	org.jrao.duckclient.command;version=snapshot,\
+	org.jrao.duckclient.provider;version=snapshot,\
+	org.osgi.service.event;version='[1.3.1,1.3.2)',\
+	org.osgi.service.metatype;version='[1.3.0,1.3.1)',\
+	osgi.enroute.logger.simple.provider;version='[2.0.0,2.0.1)'

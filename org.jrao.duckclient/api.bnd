@@ -1,0 +1,19 @@
+#
+#  API
+#
+
+Bundle-Description: \
+	 API \
+	\
+	${warning;Please update this Bundle-Description in org.jrao.duckclient/api.bnd}
+	
+	
+Export-Package:  \
+	org.jrao.duckclient.api
+
+Require-Capability: \
+	compile-only
+
+
+-includeresource: {readme.md}
+
