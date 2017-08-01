@@ -7,8 +7,11 @@ import org.jrao.duck.api.Duck;
 
 import osgi.enroute.debug.api.Debug;
 
-@Component(service=DuckSizeCommand.class, property = { Debug.COMMAND_SCOPE + "=duck",
-		Debug.COMMAND_FUNCTION + "=size" }, name="org.jrao.ducksize.command")
+@Component(
+	service=DuckSizeCommand.class,
+	property = {Debug.COMMAND_SCOPE + "=duck", Debug.COMMAND_FUNCTION + "=size"},
+	name="org.jrao.ducksize.command"
+)
 public class DuckSizeCommand {
 	
 	public void size() {

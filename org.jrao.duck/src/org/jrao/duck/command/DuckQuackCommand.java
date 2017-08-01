@@ -11,8 +11,11 @@ import osgi.enroute.debug.api.Debug;
  * through a Gogo command.
  * 
  */
-@Component(service=DuckQuackCommand.class, property = { Debug.COMMAND_SCOPE + "=duck",
-		Debug.COMMAND_FUNCTION + "=quack" }, name="org.jrao.duckquack.command")
+@Component(
+	service=DuckQuackCommand.class,
+	property = {Debug.COMMAND_SCOPE + "=duck", Debug.COMMAND_FUNCTION + "=quack"},
+	name="org.jrao.duckquack.command"
+)
 public class DuckQuackCommand {
 
 	public void quack() {
